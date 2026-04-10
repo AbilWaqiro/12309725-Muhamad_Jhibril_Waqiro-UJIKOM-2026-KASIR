@@ -102,7 +102,7 @@
             </li>
 
             <li class="nav-item">
-                <a href="#">
+                <a href="{{ route('order.index') }}" class="{{ request()->routeIs('order.*') ? 'active' : '' }}">
                     <i class="bi bi-cart3"></i> Transaksi
                 </a>
             </li>

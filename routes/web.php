@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -17,6 +18,13 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/product', [ProductController::class, 'index'])->name('product.index');
     Route::get('/product/show/{product}', [ProductController::class, 'show'])->name('product.show');
+
+    Route::get('/order', [OrderController::class, 'index'])->name('order.index');
+
+    Route::middleware('role:employee')->group(function () {
+        Route::get('/order/create', [OrderController::class, 'create'])->name('order.create');
+        Route::post('/order/store', [OrderController::class, 'store'])->name('order.store');
+    });
 
     Route::middleware('role:admin')->group(function () {
        // Product CRUD admin
