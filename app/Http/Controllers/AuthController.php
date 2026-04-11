@@ -4,12 +4,14 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use App\Models\User;
 
 class AuthController extends Controller
 {
-    public function index()
+    public function showLoginForm()
     {
-        return view('auth.index');
+        return view('auth.login');
     }
 
     public function login(Request $request)
@@ -23,10 +25,18 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
-            return redirect()->route('dashboard.index')->with('success', 'Berhasil Login');
+
+            // Redirect based on role
+            if (Auth::user()->role === 'admin') {
+                return redirect()->intended('/admin/dashboard');
+            } elseif (Auth::user()->role === 'employee') {
+                return redirect()->intended('/employee/dashboard');
+            }
         }
 
-        return redirect()->back()->with('failed', 'Gagal Login');
+        return back()->withErrors([
+            'message' => 'email atau password salah',
+        ]);
     }
 
     public function logout(Request $request)
@@ -36,6 +46,6 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('login')->with('success', 'Berhasil logout');
+        return redirect('/');
     }
 }

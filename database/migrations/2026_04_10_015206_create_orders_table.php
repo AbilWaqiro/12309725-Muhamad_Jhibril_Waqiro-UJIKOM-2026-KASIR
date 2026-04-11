@@ -13,14 +13,14 @@ return new class extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
-            $table->foreignId('customer_id')->nullable()->constrained()->nullOnDelete();
-            $table->dateTime('sale_date');
+            $table->foreignId('employee_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('customer_id')->constrained('customers')->onDelete('cascade');
+            $table->datetime('sale_date');
             $table->integer('total_price');
             $table->integer('total_pay');
             $table->integer('total_return');
-            $table->integer('points_earned');
-            $table->integer('points_used');
+            $table->integer('point_earned');
+            $table->integer('point_used');
             $table->timestamps();
         });
     }
@@ -30,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('pembelians');
+        Schema::dropIfExists('orders');
     }
 };

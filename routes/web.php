@@ -1,49 +1,49 @@
 <?php
 
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\OrderController;
-use App\Http\Controllers\ProductController;
-use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\EmployeeController;
 
-Route::middleware('guest')->group(function () {
-    Route::get('/', [AuthController::class, 'index'])->name('login');   
-    Route::post('/login', [AuthController::class, 'login'])->name('auth.login'); 
+Route::get('/', function () {
+    return view('landing');
 });
-  
+
+Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
+Route::post('/login', [AuthController::class, 'login']);
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
 Route::middleware('auth')->group(function () {
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.index'); 
-    Route::post('/logout', [AuthController::class, 'logout'])->name('auth.logout');
+    Route::prefix('admin')->middleware('role:admin')->group(function () {
+        Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+        Route::get('/users', [AdminController::class, 'users'])->name('admin.users');
+        Route::get('/users/create', [AdminController::class, 'createUser'])->name('admin.users.create');
+        Route::post('/users', [AdminController::class, 'storeUser'])->name('admin.users.store');
+        Route::get('/users/{id}/edit', [AdminController::class, 'editUser'])->name('admin.users.edit');
+        Route::put('/users/{id}', [AdminController::class, 'updateUser'])->name('admin.users.update');
+        Route::delete('/users/{id}', [AdminController::class, 'deleteUser'])->name('admin.users.destroy');
 
-    Route::get('/product', [ProductController::class, 'index'])->name('product.index');
-    Route::get('/product/show/{product}', [ProductController::class, 'show'])->name('product.show');
+        Route::get('/products', [AdminController::class, 'products'])->name('admin.products');
+        Route::get('/products/create', [AdminController::class, 'createProduct'])->name('admin.products.create');
+        Route::post('/products', [AdminController::class, 'storeProduct'])->name('admin.products.store');
+        Route::get('/products/{id}/edit', [AdminController::class, 'editProduct'])->name('admin.products.edit');
+        Route::put('/products/{id}', [AdminController::class, 'updateProduct'])->name('admin.products.update');
+        Route::patch('/products/{id}/update-stock', [AdminController::class, 'updateStock'])->name('admin.products.update-stock');
+        Route::delete('/products/{id}', [AdminController::class, 'deleteProduct'])->name('admin.products.destroy');
 
-    Route::get('/order', [OrderController::class, 'index'])->name('order.index');
-
-    Route::middleware('role:employee')->group(function () {
-        Route::get('/order/create', [OrderController::class, 'create'])->name('order.create');
-        Route::post('/order/store', [OrderController::class, 'store'])->name('order.store');
+        Route::get('/orders', [AdminController::class, 'orders'])->name('admin.orders');
+        Route::get('/orders/export', [AdminController::class, 'exportOrders'])->name('admin.orders.export');
+        Route::get('/orders/{id}', [AdminController::class, 'orderDetail'])->name('admin.order.detail');
     });
 
-    Route::middleware('role:admin')->group(function () {
-       // Product CRUD admin
-       Route::get('/product/create', [ProductController::class, 'create'])->name('product.create');
-       Route::post('/product/store', [ProductController::class, 'store'])->name('product.store');
-       Route::get('/product/{product}/edit', [ProductController::class, 'edit'])->name('product.edit');
-       Route::patch('/product/{product}/update', [ProductController::class, 'update'])->name('product.update');
-       Route::patch('/produks/stock/{product}', [ProductController::class, 'updateStock'])->name('product.updateStock');
-       Route::delete('/product/{product}/destroy', [ProductController::class, 'destroy'])->name('product.destroy');
-
-       // User CRUD admin
-       Route::get('/user', [UserController::class, 'index'])->name('user.index');
-       Route::get('/user/create', [UserController::class, 'create'])->name('user.create');
-       Route::post('/user/store', [UserController::class, 'store'])->name('user.store');
-       Route::get('/user/{user}', [UserController::class, 'show'])->name('user.show');
-       Route::get('/user/{user}/edit', [UserController::class, 'edit'])->name('user.edit');
-       Route::patch('/user/{user}/update', [UserController::class, 'update'])->name('user.update');
-       Route::delete('/user/{user}/destroy', [UserController::class, 'destroy'])->name('user.destroy');
+    Route::prefix('employee')->middleware('role:employee')->group(function () {
+        Route::get('/dashboard', [EmployeeController::class, 'dashboard'])->name('employee.dashboard');
+        Route::get('/products', [EmployeeController::class, 'products'])->name('employee.products');
+        Route::get('/transactions', [EmployeeController::class, 'createTransaction'])->name('employee.transactions.create');
+        Route::post('/transactions', [EmployeeController::class, 'storeTransaction'])->name('employee.transactions.store');
+        Route::get('/check-customer-points', [EmployeeController::class, 'checkCustomerPoints'])->name('employee.check-customer-points');
+        Route::get('/orders', [EmployeeController::class, 'orders'])->name('employee.orders');
+        Route::get('/orders/export', [EmployeeController::class, 'exportOrders'])->name('employee.orders.export');
+        Route::get('/orders/{id}', [EmployeeController::class, 'orderDetail'])->name('employee.order.detail');
     });
 });
-
-
